@@ -2,7 +2,6 @@ import requests
 from bs4 import BeautifulSoup
 import pandas as pd
 import PyPDF2
-import ollama
 from pathlib import Path
 import os
 from typing import Dict, List
@@ -44,47 +43,6 @@ class MoodleAutoGrader:
             print(f"Authentication failed: {str(e)}")
             return False
 
-    def download_submissions(self, assignment_url: str, output_dir: str) -> List[str]:
-        """
-        Download all student PDF submissions from the given assignment URL
-        
-        Args:
-            assignment_url: URL to the assignment submission page
-            output_dir: Directory to save downloaded submissions
-        
-        Returns:
-            List of paths to downloaded PDFs
-        """
-        if not self.authenticated:
-            raise Exception("Not authenticated. Please authenticate first.")
-
-        Path(output_dir).mkdir(parents=True, exist_ok=True)
-        downloaded_files = []
-
-        try:
-            response = self.session.get(assignment_url)
-            soup = BeautifulSoup(response.text, 'html.parser')
-            
-            # Find all submission links
-            submission_links = soup.find_all('a', href=lambda x: x and 'submission' in x)
-            
-            for link in submission_links:
-                file_url = link['href']
-                student_name = link.get_text().strip()
-                
-                # Download PDF
-                pdf_response = self.session.get(file_url)
-                if pdf_response.ok:
-                    file_path = os.path.join(output_dir, f"{student_name}.pdf")
-                    with open(file_path, 'wb') as f:
-                        f.write(pdf_response.content)
-                    downloaded_files.append(file_path)
-
-            return downloaded_files
-        except Exception as e:
-            print(f"Error downloading submissions: {str(e)}")
-            return []
-
 class AssignmentGrader:
     def __init__(self, rubric_path: str):
         """
@@ -117,43 +75,58 @@ class AssignmentGrader:
         # Use LLM grader to grade the submission
         return self.llm_grader.grade_submission(self.rubric, submission_text)
 
-def main():
-    # Initialize grader with configuration
-    moodle_grader = MoodleAutoGrader(
-        MOODLE_CONFIG['base_url'],
-        MOODLE_CONFIG['credentials']
-    )
+def grade_submissions(submissions_dir: str, rubric_path: str) -> pd.DataFrame:
+    """
+    Grade all submissions in a directory
     
-    # Authenticate
-    if not moodle_grader.authenticate():
-        print("Authentication failed")
-        return
+    Args:
+        submissions_dir: Directory containing PDF submissions
+        rubric_path: Path to rubric PDF
     
-    # Download submissions
-    submissions = moodle_grader.download_submissions(
-        ASSIGNMENT_CONFIG['url'],
-        ASSIGNMENT_CONFIG['output_dir']
-    )
-    
-    # Initialize assignment grader
-    assignment_grader = AssignmentGrader(ASSIGNMENT_CONFIG['rubric_path'])
+    Returns:
+        DataFrame with grading results
+    """
+    # Initialize grader
+    assignment_grader = AssignmentGrader(rubric_path)
     
     # Grade submissions and collect results
     results = []
-    for submission_path in submissions:
-        student_name = Path(submission_path).stem
-        grade_result = assignment_grader.grade_submission(submission_path)
-        
-        results.append({
-            'Student Name': student_name,
-            'Grade': grade_result['grade'],
-            'Feedback': grade_result['feedback']
-        })
+    for submission_path in Path(submissions_dir).glob('*.pdf'):
+        student_name = submission_path.stem
+        try:
+            grade_result = assignment_grader.grade_submission(str(submission_path))
+            results.append({
+                'Student Name': student_name,
+                'Grade': grade_result['grade'],
+                'Feedback': grade_result['feedback'],
+                'Status': 'Success'
+            })
+        except Exception as e:
+            results.append({
+                'Student Name': student_name,
+                'Grade': 0,
+                'Feedback': f'Error: {str(e)}',
+                'Status': 'Failed'
+            })
     
-    # Create and save results CSV
-    df = pd.DataFrame(results)
-    df.to_csv('grading_results.csv', index=False)
+    return pd.DataFrame(results)
+
+def main():
+    # Grade submissions from a directory
+    results_df = grade_submissions(
+        ASSIGNMENT_CONFIG['output_dir'],
+        ASSIGNMENT_CONFIG['rubric_path']
+    )
+    
+    # Save results
+    results_df.to_csv('grading_results.csv', index=False)
     print(f"Grading completed. Results saved to grading_results.csv")
+    
+    # Print summary
+    print("\nGrading Summary:")
+    print(f"Total submissions: {len(results_df)}")
+    print(f"Successfully graded: {len(results_df[results_df['Status'] == 'Success'])}")
+    print(f"Failed: {len(results_df[results_df['Status'] == 'Failed'])}")
 
 if __name__ == "__main__":
     main() 
