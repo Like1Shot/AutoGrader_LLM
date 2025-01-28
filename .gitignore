@@ -18,10 +18,17 @@ grading_results.csv
 
 # macOS system files
 .DS_Store
-.DS_Store?
+**/.DS_Store
 ._*
 .Spotlight-V100
 .Trashes
 
 # Add this if you don't want to track python version file
-.python-version 
+.python-version
+
+# IDE
+.vscode/
+.idea/
+
+# Local config
+config_local.py 
