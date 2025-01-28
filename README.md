@@ -1,131 +1,104 @@
-# Moodle AutoGrader with LLM
+# AutoGrader
 
-An automated grading system that authenticates with CU Boulder's Moodle platform, downloads student submissions, and uses Ollama (LLM) to grade assignments based on provided rubrics.
+An automated grading system using LangChain and Ollama for local LLM-based assignment grading.
 
-## 🌟 Features
-
-- Secure Moodle authentication with CU Boulder credentials
-- Automatic PDF submission downloads
-- LLM-powered grading using Ollama
+## Features
+- Local LLM grading using Ollama
+- Supports PDF submissions and Markdown rubrics
+- Batch processing of student submissions
 - Structured grade reports in CSV format
-- Secure configuration handling
-- Detailed feedback generation
+- Configurable grading parameters
 
-## 🚀 Getting Started
-
-### Prerequisites
-
-- Python 3.9+
+## Prerequisites
+- Python 3.8+
 - Ollama installed and running
-- CU Boulder Moodle access credentials
+- llama2 model pulled in Ollama
 
-### Installation
+## Installation
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/Like1Shot/AutoGrader_LLM.git
-cd AutoGrader_LLM
+git clone https://github.com/yourusername/AutoGrader.git
+cd AutoGrader
 ```
 
-2. Install dependencies:
+2. Create and activate a virtual environment:
 ```bash
-uv pip install -r requirements.txt
+python -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 ```
 
-### Configuration
-
-1. Create your local configuration:
+3. Install dependencies:
 ```bash
-cp config.py config.local.py
+pip install -r requirements.txt
 ```
 
-2. Edit `config.local.py` with your credentials:
+4. Install and set up Ollama:
+```bash
+# Install Ollama (see https://ollama.ai)
+ollama serve
+ollama pull llama2
+```
+
+## Configuration
+
+1. Copy the example config:
+```bash
+cp config_local.py.example config_local.py
+```
+
+2. Update `config_local.py` with your settings:
 ```python
-MOODLE_CONFIG = {
-    'base_url': 'https://applied.cs.colorado.edu',
-    'credentials': {
-        'username': 'your_identikey@colorado.edu',
-        'password': 'your_password'
-    }
-}
-
-ASSIGNMENT_CONFIG = {
-    'url': 'your_assignment_url',
-    'rubric_path': 'path_to_rubric.pdf',
-    'output_dir': 'submissions'
-}
+COURSE_NUM = 'CSPB-1300'  # Your course number
+ASSIGNMENT_NAME = 'Lab2'   # Assignment name
 ```
 
-## 📁 Project Structure
-
+## Directory Structure
 ```
-AutoGrader/
-├── moodle_autograder.py   # Main application
-├── llm_grader.py          # LLM grading logic
-├── config.py              # Configuration template
-├── config.local.py        # Local configuration (gitignored)
-├── requirements.txt       # Dependencies
-└── .gitignore            # Git ignore rules
+~/Documents/CU Boulder/Grading/
+├── CSPB-1300/
+│   ├── Lab2/
+│   │   ├── Student1_44997_assignsubmission_file_/
+│   │   │   └── submission.pdf
+│   │   └── Student2_44998_assignsubmission_file_/
+│   │       └── submission.pdf
+│   ├── Rubrics/
+│   │   └── Lab2_Rubric.md
+│   └── Reports/
+│       └── CSPB-1300_grades_20240220_143022.csv
 ```
 
-## 🔧 Usage
+## Usage
 
-1. Set up your configuration in `config.local.py`
-2. Place your rubric PDF in the specified location
-3. Run the autograder:
+1. Place student submissions in the appropriate directory:
+   - Path: `~/Documents/CU Boulder/Grading/[COURSE_NUM]/[ASSIGNMENT_NAME]/`
+   - Format: `[Student Name]_[ID]_assignsubmission_file_/submission.pdf`
+
+2. Create your rubric:
+   - Path: `~/Documents/CU Boulder/Grading/[COURSE_NUM]/Rubrics/[ASSIGNMENT_NAME]_Rubric.md`
+
+3. Run the grader:
 ```bash
-python moodle_autograder.py
+python llm_grader.py
 ```
 
-### What it does:
-1. Authenticates with CU Boulder Moodle
-2. Downloads student PDF submissions
-3. Processes each submission with Ollama
-4. Generates a CSV report with grades and feedback
+## Output
+- Grades and feedback are saved to a CSV file
+- Default location: `~/Documents/CU Boulder/Grading/[COURSE_NUM]/[ASSIGNMENT_NAME]/grades/`
+- Format: `[COURSE_NUM]_[ASSIGNMENT_NAME]_grades.csv`
 
-## 📊 Output
+## Dependencies
+- langchain==0.1.9
+- langchain-core==0.1.22
+- langchain-community==0.0.24
+- langchain-ollama==0.0.3
+- pandas==2.2.1
+- PyPDF2==3.0.1
+- pydantic==2.6.1
+- ollama==0.1.6
 
-The system generates:
-- Student submissions in your specified output directory
-- `grading_results.csv` containing:
-  - Student names
-  - Numerical grades
-  - Detailed feedback
+## Contributing
+Feel free to submit issues and pull requests.
 
-## 🔒 Security Notes
-
-- `config.local.py` is gitignored to protect credentials
-- Use virtual environments for dependency isolation
-- Keep your credentials secure
-- Regularly update dependencies
-
-## 📦 Dependencies
-
-```
-requests
-beautifulsoup4
-pandas
-PyPDF2
-ollama
-```
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create your feature branch
-3. Commit your changes
-4. Push to the branch
-5. Open a Pull Request
-
-## 📝 License
-
-[Your chosen license]
-
-## ✨ Acknowledgments
-
-- CU Boulder Applied Computer Science Department
-- Ollama project contributors
-
-## ⚠️ Disclaimer
-
-This tool is intended for educational purposes. Always ensure you have appropriate permissions when accessing and processing student submissions.
+## License
+MIT License
