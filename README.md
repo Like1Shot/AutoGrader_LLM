@@ -58,9 +58,9 @@ ASSIGNMENT_NAME = 'Lab2'   # Assignment name
 ~/Documents/CU Boulder/Grading/
 ├── CSPB-1300/
 │   ├── Lab2/
-│   │   ├── Student1_44997_assignsubmission_file_/
+│   │   ├── Student1_XXXXX_assignsubmission_file_/
 │   │   │   └── submission.pdf
-│   │   └── Student2_44998_assignsubmission_file_/
+│   │   └── Student2_XXXXX_assignsubmission_file_/
 │   │       └── submission.pdf
 │   ├── Rubrics/
 │   │   └── Lab2_Rubric.md
