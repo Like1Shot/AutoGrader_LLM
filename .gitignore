@@ -1,0 +1,17 @@
+# Sensitive configuration
+config.local.py
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+.env
+.venv
+venv/
+ENV/
+
+# Project specific
+submissions/
+grading_results.csv
+*.pdf 
