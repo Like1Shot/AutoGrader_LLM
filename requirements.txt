@@ -1,5 +1,5 @@
-requests
-beautifulsoup4
-pandas
-PyPDF2
-ollama 
+requests==2.31.0
+beautifulsoup4==4.12.3
+pandas==2.2.1
+PyPDF2==3.0.1
+ollama==0.1.6 

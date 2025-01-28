@@ -11,7 +11,7 @@ class LLMGrader:
     def create_grading_prompt(self, rubric_text: str, submission_text: str) -> str:
         """Create the prompt for the LLM"""
         return f"""
-        Please grade this student submission according to the following rubric:
+        Frade this student submission according to the following rubric:
         
         Rubric:
         {rubric_text}
@@ -19,7 +19,7 @@ class LLMGrader:
         Student Submission:
         {submission_text}
         
-        Please provide your response in the following format:
+        Provide your response in the following format:
         Grade: [numerical grade out of 100]
         Feedback: [detailed feedback explaining the grade]
         """
