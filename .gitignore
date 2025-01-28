@@ -14,4 +14,14 @@ ENV/
 # Project specific
 submissions/
 grading_results.csv
-*.pdf 
+*.pdf
+
+# macOS system files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+
+# Add this if you don't want to track python version file
+.python-version 
