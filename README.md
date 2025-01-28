@@ -1,6 +1,6 @@
 # AutoGrader
 
-An automated grading system using LangChain and Ollama for local LLM-based assignment grading.
+An automated grading system using LangChain and Ollama for local LLM-based assignment grading. ONLY use as assistant for grading and not as the final grade!
 
 ## Features
 - Local LLM grading using Ollama
